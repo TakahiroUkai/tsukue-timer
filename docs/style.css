@@ -37,3 +37,7 @@ button:focus-visible,summary:focus-visible,a:focus-visible,input:focus-visible{o
 @keyframes pulse{50%{transform:scale(1.04)}}
 body.done .dial{animation:pulse 1s ease-in-out 3}
 @media (prefers-reduced-motion:reduce){body.done .dial{animation:none}}
+.next{margin:18px 0 0;background:var(--panel);border:2px dashed var(--accent);border-radius:16px;padding:12px 14px;text-align:left}
+.next[hidden]{display:none}
+.next p{margin:0 0 6px}
+.next a{color:var(--accent);font-weight:700}

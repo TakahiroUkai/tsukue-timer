@@ -2,6 +2,7 @@
 'use strict';
 var DEF={work:25,short:5,long:15,sound:true};
 var NAMES={work:'さぎょう',short:'ちょっと休けい',long:'ゆっくり休けい'};
+var wake=null;
 var mode='work',endAt=0,leftMs=0,timer=0,running=false,audio=null,streak=0;
 var $=function(id){return document.getElementById(id)};
 var cfg={work:DEF.work,short:DEF.short,long:DEF.long,sound:true};
@@ -49,8 +50,19 @@ function beep(){
   try{if(navigator.vibrate)navigator.vibrate([200,100,200])}catch(e){}
 }
 
+function lockScreen(){
+  try{
+    if(!running||!navigator.wakeLock||wake)return;
+    navigator.wakeLock.request('screen').then(function(l){
+      wake=l;l.addEventListener('release',function(){wake=null});
+      if(!running)unlockScreen();
+    }).catch(function(){});
+  }catch(e){}
+}
+function unlockScreen(){try{if(wake){wake.release();wake=null}}catch(e){}}
 function setRunning(r){
   running=r;
+  if(r)lockScreen();else unlockScreen();
   $('start').textContent=r?'ひと休み':(leftMs<total()?'つづける':'はじめる');
   if(r){if(!timer)timer=setInterval(tick,250)}else{clearInterval(timer);timer=0}
 }
@@ -61,6 +73,7 @@ function start(){
     if(audio&&audio.state==='suspended')audio.resume();
   }catch(e){}
   document.body.classList.remove('done');
+  $('next').hidden=true;
   if(leftMs<=0)leftMs=total();
   endAt=Date.now()+leftMs;
   setRunning(true);
@@ -68,7 +81,7 @@ function start(){
   render();
 }
 function pause(){leftMs=Math.max(0,endAt-Date.now());setRunning(false);msg('ひと休み中です');render()}
-function reset(){setRunning(false);leftMs=total();document.body.classList.remove('done');msg('ボタンをおすと はじまります');$('start').textContent='はじめる';render()}
+function reset(){setRunning(false);$('next').hidden=true;leftMs=total();document.body.classList.remove('done');msg('ボタンをおすと はじまります');$('start').textContent='はじめる';render()}
 function setMode(m,keepMsg){
   mode=m;document.body.dataset.mode=m;
   Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function(b){b.setAttribute('aria-selected',b.dataset.mode===m?'true':'false')});
@@ -83,6 +96,7 @@ function finish(){
     rollDate();stat.today++;stat.total++;save('tt-stat',stat);showCount();
     streak++;next=(streak%4===0)?'long':'short';
     msg('おつかれさま!「'+NAMES[next]+'」にしました');
+    $('next').hidden=false;
   }else{next='work';msg('休けい おわり。できそうなら つぎも どうぞ')}
   mode=next;document.body.dataset.mode=next;
   Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function(b){b.setAttribute('aria-selected',b.dataset.mode===next?'true':'false')});
@@ -107,7 +121,7 @@ Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function
 });
 $('set-sound').checked=cfg.sound;
 $('set-sound').addEventListener('change',function(){cfg.sound=this.checked;save('tt-cfg',cfg)});
-document.addEventListener('visibilitychange',function(){if(running)render()});
+document.addEventListener('visibilitychange',function(){if(running){render();lockScreen()}});
 
 // 目盛り(5分割)
 (function(){var g=document.querySelector('.ticks'),ns='http://www.w3.org/2000/svg';
