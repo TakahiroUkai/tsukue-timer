@@ -67,12 +67,17 @@ function setRunning(r){
   $('start').textContent=r?'ひと休み':(leftMs<total()?'つづける':'はじめる');
   if(r){if(!timer)timer=setInterval(tick,250)}else{clearInterval(timer);timer=0}
 }
-function start(){
+function unlockAudio(){
   try{
     var AC=window.AudioContext||window.webkitAudioContext;
     if(!audio&&AC)audio=new AC();
     if(audio&&audio.state==='suspended')audio.resume();
   }catch(e){}
+}
+// 更新・再訪問のあとでも、画面のどこかをさわれば終わりの音が鳴るようにする
+document.addEventListener('pointerdown',unlockAudio,{passive:true});
+function start(){
+  unlockAudio();
   document.body.classList.remove('done');
   $('next').hidden=true;
   if(leftMs<=0)leftMs=total();
@@ -111,7 +116,10 @@ function showCount(){rollDate();$('today').textContent=stat.today;$('mins').text
 
 $('start').addEventListener('click',function(){running?pause():start()});
 $('reset').addEventListener('click',reset);
-Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function(b){b.addEventListener('click',function(){setMode(b.dataset.mode)})});
+Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function(b){b.addEventListener('click',function(){
+  if(b.dataset.mode===mode)return;
+  if(running){var ok=true;try{ok=window.confirm('いまのタイマーをやめて、切りかえますか?')}catch(e){}if(!ok)return}
+  setMode(b.dataset.mode)})});
 ['work','short','long'].forEach(function(k){
   var el=$('set-'+k);el.value=cfg[k];
   el.addEventListener('change',function(){
