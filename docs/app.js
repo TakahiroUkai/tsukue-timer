@@ -13,7 +13,7 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 var c=load('tt-cfg');if(c){['work','short','long'].forEach(function(k){var n=+c[k];if(n>=1&&n<=180)cfg[k]=Math.floor(n)});if(c.sound===false)cfg.sound=false}
 var s=load('tt-stat');if(s&&typeof s.total==='number'){stat=s}
-function rollDate(){if(stat.date!==today()){stat.date=today();stat.today=0;save('tt-stat',stat)}}
+function rollDate(){if(stat.date!==today()){stat.date=today();stat.today=0;stat.min=0;save('tt-stat',stat)}}
 
 function total(){return cfg[mode]*60000}
 function fmt(ms){var t=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(t/60),r=t%60;return (m<10?'0':'')+m+':'+(r<10?'0':'')+r}
@@ -94,7 +94,7 @@ function finish(quiet){
   if(!quiet)beep();
   var next;
   if(mode==='work'){
-    rollDate();stat.today++;stat.total++;save('tt-stat',stat);showCount();
+    rollDate();stat.today++;stat.total++;stat.min=(stat.min||0)+cfg.work;save('tt-stat',stat);showCount();
     streak++;next=(streak%4===0)?'long':'short';
     msg('おつかれさま!「'+NAMES[next]+'」にしました');
     $('next').hidden=false;
@@ -107,7 +107,7 @@ function finish(quiet){
   $('time').textContent=fmt(0);
   saveRun();
 }
-function showCount(){rollDate();$('today').textContent=stat.today;$('total').textContent=stat.total}
+function showCount(){rollDate();$('today').textContent=stat.today;$('mins').textContent=stat.min||0;$('total').textContent=stat.total}
 
 $('start').addEventListener('click',function(){running?pause():start()});
 $('reset').addEventListener('click',reset);
@@ -120,6 +120,10 @@ Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function
     el.value=n;cfg[k]=n;save('tt-cfg',cfg);
     if(k===mode&&!running){leftMs=total();render()}
   });
+});
+$('try-sound').addEventListener('click',function(){
+  try{var AC=window.AudioContext||window.webkitAudioContext;if(!audio&&AC)audio=new AC();if(audio&&audio.state==='suspended')audio.resume()}catch(e){}
+  var was=cfg.sound;cfg.sound=true;beep();cfg.sound=was;
 });
 $('set-sound').checked=cfg.sound;
 $('set-sound').addEventListener('change',function(){cfg.sound=this.checked;save('tt-cfg',cfg)});

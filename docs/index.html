@@ -41,6 +41,7 @@
 
   <section class="count" aria-label="完了した回数">
     <div><span id="today">0</span><small>きょうの回数</small></div>
+    <div><span id="mins">0</span><small>きょうの分</small></div>
     <div><span id="total">0</span><small>ぜんぶの回数</small></div>
   </section>
 
@@ -50,6 +51,7 @@
     <label>ちょっと休けい <input type="number" id="set-short" min="1" max="60" inputmode="numeric"> 分</label>
     <label>ゆっくり休けい <input type="number" id="set-long" min="1" max="60" inputmode="numeric"> 分</label>
     <label class="chk"><input type="checkbox" id="set-sound" checked> 終わったら音で知らせる</label>
+    <button type="button" id="try-sound" class="sub">音をためす</button>
   </details>
 
   <!-- 広告枠(将来用。いまは何も表示しない) -->

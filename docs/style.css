@@ -41,3 +41,6 @@ body.done .dial{animation:pulse 1s ease-in-out 3}
 .next[hidden]{display:none}
 .next p{margin:0 0 6px}
 .next a{color:var(--accent);font-weight:700}
+
+.settings .sub{margin-top:12px;min-height:44px;width:100%}
+.count{gap:8px}.count span{font-size:26px}.count small{font-size:12px}
