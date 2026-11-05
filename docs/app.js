@@ -26,13 +26,14 @@ function wedge(f){
   var a=(1-f)*2*Math.PI,x=104*Math.sin(a),y=-104*Math.cos(a);
   p.setAttribute('d','M0 0L'+x.toFixed(2)+' '+y.toFixed(2)+'A104 104 0 '+(f>0.5?1:0)+' 1 0 -104Z');
 }
+function saveRun(){save('tt-run',{mode:mode,running:running,endAt:endAt,leftMs:leftMs,streak:streak})}
 function msg(t){$('msg').textContent=t}
 function render(){
   var left=running?Math.max(0,endAt-Date.now()):leftMs;
   $('time').textContent=fmt(left);
   wedge(left/total());
   document.title=(running?fmt(left)+' ':'')+'机タイム 集中タイマー';
-  if(running&&left<=0)finish();
+  if(running&&left<=0)finish(false);
 }
 function tick(){render()}
 
@@ -76,21 +77,21 @@ function start(){
   $('next').hidden=true;
   if(leftMs<=0)leftMs=total();
   endAt=Date.now()+leftMs;
-  setRunning(true);
+  setRunning(true);saveRun();
   msg(mode==='work'?'がんばっているね。丸が小さくなっていきます':'ゆっくり休みましょう');
   render();
 }
-function pause(){leftMs=Math.max(0,endAt-Date.now());setRunning(false);msg('ひと休み中です');render()}
-function reset(){setRunning(false);$('next').hidden=true;leftMs=total();document.body.classList.remove('done');msg('ボタンをおすと はじまります');$('start').textContent='はじめる';render()}
+function pause(){leftMs=Math.max(0,endAt-Date.now());setRunning(false);saveRun();msg('ひと休み中です');render()}
+function reset(){setRunning(false);$('next').hidden=true;leftMs=total();document.body.classList.remove('done');msg('ボタンをおすと はじまります');$('start').textContent='はじめる';saveRun();render()}
 function setMode(m,keepMsg){
   mode=m;document.body.dataset.mode=m;
   Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function(b){b.setAttribute('aria-selected',b.dataset.mode===m?'true':'false')});
   reset();
 }
-function finish(){
+function finish(quiet){
   setRunning(false);leftMs=0;render();
   document.body.classList.add('done');
-  beep();
+  if(!quiet)beep();
   var next;
   if(mode==='work'){
     rollDate();stat.today++;stat.total++;save('tt-stat',stat);showCount();
@@ -104,6 +105,7 @@ function finish(){
   $('start').textContent='はじめる';
   document.title='おわり! 机タイム 集中タイマー';
   $('time').textContent=fmt(0);
+  saveRun();
 }
 function showCount(){rollDate();$('today').textContent=stat.today;$('total').textContent=stat.total}
 
@@ -129,5 +131,16 @@ document.addEventListener('visibilitychange',function(){if(running){render();loc
     l.setAttribute('x1',(88*Math.sin(a)).toFixed(1));l.setAttribute('y1',(-88*Math.cos(a)).toFixed(1));
     l.setAttribute('x2',(100*Math.sin(a)).toFixed(1));l.setAttribute('y2',(-100*Math.cos(a)).toFixed(1));g.appendChild(l)}})();
 
-showCount();reset();
+showCount();
+(function(){
+  var r=load('tt-run');
+  if(!r||!/^(work|short|long)$/.test(r.mode)||typeof r.leftMs!=='number'){reset();return}
+  mode=r.mode;document.body.dataset.mode=mode;streak=+r.streak||0;
+  Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function(b){b.setAttribute('aria-selected',b.dataset.mode===mode?'true':'false')});
+  if(r.running&&typeof r.endAt==='number'){
+    if(r.endAt>Date.now()){leftMs=r.leftMs;endAt=r.endAt;setRunning(true);msg('つづきから、がんばっているね');render()}
+    else{running=true;endAt=r.endAt;finish(true)}
+  }else if(r.leftMs>0&&r.leftMs<total()){leftMs=r.leftMs;setRunning(false);msg('ひと休み中です');render()}
+  else reset();
+})();
 })();
