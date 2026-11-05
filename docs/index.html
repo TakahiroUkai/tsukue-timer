@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>机タイム 集中タイマー</title>
+<meta name="description" content="丸い色がだんだん小さくなって、残りの時間が目で見て分かる集中タイマーです。作業と休憩を切り替えて、親子の机の時間にも使えます。">
+<link rel="canonical" href="https://takahiroukai.github.io/tsukue-timer/">
+<meta property="og:type" content="website"><meta property="og:title" content="机タイム 集中タイマー"><meta property="og:description" content="丸い色が小さくなって、残りの時間が見て分かるタイマーです。">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head><body data-mode="work">
+<header class="top"><a class="back" href="https://takahiroukai.github.io/tsukue-time/">← 机タイム素材集にもどる</a></header>
+<main class="app">
+  <h1>集中タイマー</h1>
+  <div class="modes" role="tablist" aria-label="タイマーの種類">
+    <button role="tab" data-mode="work" aria-selected="true">さぎょう</button>
+    <button role="tab" data-mode="short" aria-selected="false">ちょっと休けい</button>
+    <button role="tab" data-mode="long" aria-selected="false">ゆっくり休けい</button>
+  </div>
+
+  <div class="dial" aria-hidden="true">
+    <svg viewBox="-110 -110 220 220">
+      <circle class="face" r="104"/>
+      <path id="wedge" class="wedge" d=""/>
+      <g class="ticks"></g>
+      <circle class="rim" r="104"/>
+    </svg>
+  </div>
+  <p class="time" id="time" role="timer" aria-live="off">25:00</p>
+  <p class="msg" id="msg" aria-live="polite">ボタンをおすと はじまります</p>
+
+  <div class="ctrl">
+    <button id="start" class="main">はじめる</button>
+    <button id="reset" class="sub">もどす</button>
+  </div>
+
+  <section class="count" aria-label="完了した回数">
+    <div><span id="today">0</span><small>きょうの回数</small></div>
+    <div><span id="total">0</span><small>ぜんぶの回数</small></div>
+  </section>
+
+  <details class="settings">
+    <summary>時間を変える</summary>
+    <label>さぎょう <input type="number" id="set-work" min="1" max="180" inputmode="numeric"> 分</label>
+    <label>ちょっと休けい <input type="number" id="set-short" min="1" max="60" inputmode="numeric"> 分</label>
+    <label>ゆっくり休けい <input type="number" id="set-long" min="1" max="60" inputmode="numeric"> 分</label>
+    <label class="chk"><input type="checkbox" id="set-sound" checked> 終わったら音で知らせる</label>
+  </details>
+
+  <!-- 広告枠(将来用。いまは何も表示しない) -->
+  <div class="ad-slot" id="ad-slot" hidden></div>
+</main>
+<footer><p>画面を閉じたり、ほかのアプリを開いたりしても、時間はずれません。</p></footer>
+<script src="app.js"></script>
+</body></html>
