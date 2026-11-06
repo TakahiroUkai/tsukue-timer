@@ -64,7 +64,7 @@ function unlockScreen(){try{if(wake){wake.release();wake=null}}catch(e){}}
 function setRunning(r){
   running=r;
   if(r)lockScreen();else unlockScreen();
-  $('start').textContent=r?'ひと休み':(leftMs<total()?'つづける':'はじめる');
+  $('start').textContent=r?'とめる':(leftMs<total()?'つづける':'はじめる');
   if(r){if(!timer)timer=setInterval(tick,250)}else{clearInterval(timer);timer=0}
 }
 function unlockAudio(){
@@ -86,7 +86,7 @@ function start(){
   msg(mode==='work'?'がんばっているね。丸が小さくなっていきます':'ゆっくり休みましょう');
   render();
 }
-function pause(){leftMs=Math.max(0,endAt-Date.now());setRunning(false);saveRun();msg('ひと休み中です');render()}
+function pause(){leftMs=Math.max(0,endAt-Date.now());setRunning(false);saveRun();msg('とまっています。「つづける」で再開できます');render()}
 function reset(){setRunning(false);$('next').hidden=true;leftMs=total();document.body.classList.remove('done');msg('ボタンをおすと はじまります');$('start').textContent='はじめる';saveRun();render()}
 function setMode(m,keepMsg){
   mode=m;document.body.dataset.mode=m;
@@ -121,7 +121,9 @@ function showCount(){rollDate();$('today').textContent=stat.today;$('mins').text
 }
 
 $('start').addEventListener('click',function(){running?pause():start()});
-$('reset').addEventListener('click',reset);
+$('reset').addEventListener('click',function(){
+  if(running||leftMs<total()){var ok=true;try{ok=window.confirm('進んだ時間を消して、はじめにもどしますか?')}catch(e){}if(!ok)return}
+  reset()});
 Array.prototype.forEach.call(document.querySelectorAll('.modes button'),function(b){b.addEventListener('click',function(){
   if(b.dataset.mode===mode)return;
   if(running){var ok=true;try{ok=window.confirm('いまのタイマーをやめて、切りかえますか?')}catch(e){}if(!ok)return}
@@ -158,7 +160,7 @@ showCount();
   if(r.running&&typeof r.endAt==='number'){
     if(r.endAt>Date.now()){leftMs=r.leftMs;endAt=r.endAt;setRunning(true);msg('つづきから、がんばっているね');render()}
     else{running=true;endAt=r.endAt;finish(true)}
-  }else if(r.leftMs>0&&r.leftMs<total()){leftMs=r.leftMs;setRunning(false);msg('ひと休み中です');render()}
+  }else if(r.leftMs>0&&r.leftMs<total()){leftMs=r.leftMs;setRunning(false);msg('とまっています。「つづける」で再開できます');render()}
   else reset();
 })();
 })();
