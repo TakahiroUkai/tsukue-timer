@@ -112,7 +112,13 @@ function finish(quiet){
   $('time').textContent=fmt(0);
   saveRun();
 }
-function showCount(){rollDate();$('today').textContent=stat.today;$('mins').textContent=stat.min||0;$('total').textContent=stat.total}
+function showCount(){rollDate();$('today').textContent=stat.today;$('mins').textContent=stat.min||0;$('total').textContent=stat.total;
+  var n=stat.today,box=$('stamps'),h='',i,max=12;
+  for(i=0;i<Math.min(n,max);i++)h+='<i class="stamp"></i>';
+  if(n>max)h+='<b>+'+(n-max)+'</b>';
+  box.innerHTML=h;box.hidden=n<1;
+  box.setAttribute('aria-label','きょうのスタンプ '+n+'こ');
+}
 
 $('start').addEventListener('click',function(){running?pause():start()});
 $('reset').addEventListener('click',reset);
@@ -135,7 +141,7 @@ $('try-sound').addEventListener('click',function(){
 });
 $('set-sound').checked=cfg.sound;
 $('set-sound').addEventListener('change',function(){cfg.sound=this.checked;save('tt-cfg',cfg)});
-document.addEventListener('visibilitychange',function(){if(running){render();lockScreen()}});
+document.addEventListener('visibilitychange',function(){if(running){render();lockScreen()}else if(!document.hidden){render()}});
 
 // 目盛り(5分割)
 (function(){var g=document.querySelector('.ticks'),ns='http://www.w3.org/2000/svg';

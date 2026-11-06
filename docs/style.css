@@ -44,3 +44,9 @@ body.done .dial{animation:pulse 1s ease-in-out 3}
 
 .settings .sub{margin-top:12px;min-height:44px;width:100%}
 .count{gap:8px}.count span{font-size:26px}.count small{font-size:12px}
+
+.stamps{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 14px;min-height:28px}
+.stamps[hidden]{display:none}
+.stamp{width:28px;height:28px;border-radius:50%;background:var(--wedge);border:3px solid var(--panel);box-shadow:0 0 0 2px var(--wedge);position:relative}
+.stamp::after{content:"";position:absolute;left:7px;top:4px;width:6px;height:11px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(40deg)}
+.stamps b{align-self:center;color:var(--accent)}
